@@ -1,0 +1,109 @@
+#Machine learning model implementation
+
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score, classification_report
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+
+
+# Step 1: Manually created sample dataset
+data = {
+    'label': [
+        'ham', 'spam', 'ham', 'ham', 'spam', 'ham', 'spam', 'spam', 'ham', 'ham',
+        'spam', 'ham', 'spam', 'ham', 'ham', 'spam', 'ham', 'spam', 'ham', 'spam'
+    ],
+    'message': [
+        "Hey, how are you?",
+        "Congratulations! You've won a $1000 gift card. Call now!",
+        "Are we still meeting at 6pm?",
+        "I'll be late, sorry!",
+        "You've been selected for a free cruise. Claim now!",
+        "What time is the movie?",
+        "Winner! You have been chosen for a prize. Reply YES.",
+        "URGENT! Your mobile number has won $5000.",
+        "Don't forget your meeting tomorrow.",
+        "I'll call you when I'm free.",
+        "Free entry in 2 a weekly competition to win FA Cup final tkts",
+        "See you at lunch.",
+        "Win a brand new car! Text WIN to 90909.",
+        "Meeting rescheduled to 3pm.",
+        "Can you help me with the homework?",
+        "You have won a lottery worth $1,000,000!",
+        "Let's catch up this weekend.",
+        "Earn money from home. No experience required!",
+        "Did you finish the assignment?",
+        "Get rich quick! Join our program now!"
+    ]
+}
+
+# Step 2: Create DataFrame and preprocess
+df = pd.DataFrame(data)
+df['label'] = df['label'].map({'ham': 0, 'spam': 1})  # Convert to binary
+
+# Step 3: Split dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    df['message'], df['label'], test_size=0.3, random_state=42
+)
+
+# Step 4: Text vectorization
+vectorizer = TfidfVectorizer(stop_words='english')
+X_train_tfidf = vectorizer.fit_transform(X_train)
+X_test_tfidf = vectorizer.transform(X_test)
+
+# Step 5: Train model
+model = MultinomialNB()
+model.fit(X_train_tfidf, y_train)
+
+# Step 6: Predict and evaluate
+y_pred = model.predict(X_test_tfidf)
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+
+# Step 7: Test custom input
+sample_msg = ["Free iPhone for the first 100 users! Click to claim now!"]
+sample_tfidf = vectorizer.transform(sample_msg)
+pred = model.predict(sample_tfidf)
+print("\nCustom Message Prediction:", "Spam" if pred[0] == 1 else "Ham")
+
+# Machine Learning Model Implementation and Evaluation (Iris Dataset)
+
+
+# Load Dataset
+iris = load_iris()
+X = pd.DataFrame(iris.data, columns=iris.feature_names)
+y = pd.Series(iris.target)
+
+# Split Dataset
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train Model
+model = LogisticRegression(max_iter=200)
+model.fit(X_train, y_train)
+
+# Predict
+y_pred = model.predict(X_test)
+
+# Evaluate
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred, target_names=iris.target_names))
+
+# Confusion Matrix
+conf_mat = confusion_matrix(y_test, y_pred)
+sns.heatmap(conf_mat, annot=True, cmap="Blues", fmt='d',
+            xticklabels=iris.target_names, yticklabels=iris.target_names)
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.title("Confusion Matrix")
+plt.show()
