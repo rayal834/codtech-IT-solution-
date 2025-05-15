@@ -1,0 +1,103 @@
+#Automated Report Generation 
+
+
+import pandas as pd
+from fpdf import FPDF
+import csv
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Step 1: Read data from CSV
+
+# Define the data
+data = {
+    "Name": ["Alice", "Bob", "Charlie", "Diana", "Eve"],
+    "Score": [85, 90, 78, 92, 88]
+}
+
+# Create a DataFrame
+df = pd.DataFrame(data)
+
+# Save to CSV
+csv_path = "data.csv"
+df.to_csv(csv_path, index=False)
+
+csv_path
+
+df = pd.read_csv('data.csv')
+
+# Step 2: Analyze data
+average = df['Score'].mean()
+maximum = df['Score'].max()
+minimum = df['Score'].min()
+
+# Step 3: Create PDF Report
+class PDF(FPDF):
+    def header(self):
+        self.set_font('Arial', 'B', 14)
+        self.cell(0, 10, 'Student Score Report', ln=True, align='C')
+        self.ln(10)
+
+    def footer(self):
+        self.set_y(-15)
+        self.set_font('Arial', 'I', 8)
+        self.cell(0, 10, f'Page {self.page_no()}', align='C')
+
+pdf = PDF()
+pdf.add_page()
+pdf.set_font("Arial", size=12)
+
+# Table header
+pdf.set_fill_color(200, 220, 255)
+pdf.cell(60, 10, "Name", border=1, fill=True)
+pdf.cell(40, 10, "Score", border=1, fill=True)
+pdf.ln()
+
+# Table rows
+for _, row in df.iterrows():
+    pdf.cell(60, 10, row['Name'], border=1)
+    pdf.cell(40, 10, str(row['Score']), border=1)
+    pdf.ln()
+
+# Summary section
+pdf.ln(10)
+pdf.set_font("Arial", 'B', 12)
+pdf.cell(0, 10, "Summary Statistics", ln=True)
+
+pdf.set_font("Arial", '', 12)
+pdf.cell(0, 10, f"Average Score: {average:.2f}", ln=True)
+pdf.cell(0, 10, f"Highest Score: {maximum}", ln=True)
+pdf.cell(0, 10, f"Lowest Score: {minimum}", ln=True)
+
+# Save PDF
+pdf.output("Student_Report.pdf")
+
+print("✅ Report successfully generated as 'Student_Report.pdf'")
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load data
+df = pd.read_csv("data.csv")
+
+# Generate summary report
+summary = df.describe()
+
+# Save report to text file
+with open("report.txt", "w") as f:
+    f.write("Automated Report\n")
+    f.write("================\n\n")
+    f.write("Summary Statistics:\n")
+    f.write(summary.to_string())
+
+# Visualization Dashboard
+plt.figure(figsize=(8, 5))
+sns.barplot(x='Name', y='Score', data=df, palette='viridis')
+plt.title('Scores by Student')
+plt.ylabel('Score')
+plt.xlabel('Name')
+plt.tight_layout()
+
+# Save the plot
+plt.savefig("dashboard.png")
+plt.show()
