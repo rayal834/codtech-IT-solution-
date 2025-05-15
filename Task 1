@@ -1,0 +1,106 @@
+#API Integration and Data visulaization
+
+
+import requests 
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+def get_weather(city, api_key):
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        weather = {
+            'City': city,
+            'Temperature (°C)': data['main']['temp'],
+            'Humidity (%)': data['main']['humidity'],
+            'Pressure (hPa)': data['main']['pressure'],
+            'Weather': data['weather'][0]['description'],
+            'Wind Speed (m/s)': data['wind']['speed']
+        }
+        return weather
+    else:
+        print(f"Error fetching data for {city}: {response.status_code}")
+        return None
+
+# Example usage
+api_key = '30cea47c5c0d5b92ea92543df0cf35ad'
+city = 'Delhi'
+weather_data = get_weather(city, api_key)
+if weather_data:
+    for key, value in weather_data.items():
+        print(f"{key}: {value}")
+       
+
+
+# Replace with your actual API key
+api_key = "30cea47c5c0d5b92ea92543df0cf35ad"
+city = "Delhi"
+url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={api_key}&units=metric"
+
+response = requests.get(url)
+data = response.json()
+forecast_list = data['list']
+weather_data = []
+
+for forecast in forecast_list:
+    timestamp = forecast['dt_txt']
+    temp = forecast['main']['temp']
+    weather_data.append({'Time': timestamp, 'Temperature (°C)': temp})
+
+df = pd.DataFrame(weather_data)
+df['Time'] = pd.to_datetime(df['Time'])
+
+
+plt.figure(figsize=(12, 6))
+plt.plot(df['Time'], df['Temperature (°C)'], marker='o', color='blue')
+plt.title('Temperature Forecast Over Time')
+plt.xlabel('Time')
+plt.ylabel('Temperature (°C)')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+plt.figure(figsize=(12, 6))
+sns.lineplot(x='Time', y='Temperature (°C)', data=df, marker='o', color='green')
+plt.title('Temperature Forecast (Seaborn)')
+plt.xlabel('Time')
+plt.ylabel('Temperature (°C)')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+
+# Fixed list of cities
+cities = ['Indore', 'Delhi', 'Kolkata', 'Mumbai', 'Pune']
+
+# Your OpenWeatherMap API key (use a demo key or your own if available)
+API_KEY = '30cea47c5c0d5b92ea92543df0cf35ad'  # Replace with your real API key
+URL = 'https://api.openweathermap.org/data/2.5/weather'
+
+# Fetch weather data
+temperatures = []
+for city in cities:
+    params = {'q': city, 'appid': API_KEY, 'units': 'metric'}
+    response = requests.get(URL, params=params)
+    data = response.json()
+    if response.status_code == 200:
+        temp = data['main']['temp']
+        temperatures.append(temp)
+    else:
+        temperatures.append(None)
+
+# Visualization
+plt.figure(figsize=(10, 5))
+plt.bar(cities, temperatures, color='skyblue')
+plt.title('Current Temperature in Selected Cities')
+plt.ylabel('Temperature (°C)')
+plt.xlabel('City')
+plt.grid(axis='y')
+plt.tight_layout()
+plt.show()
+
+
+
